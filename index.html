@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>رصد نقدینگی و معاملات بزرگ</title>
+<style>
+body{font-family:Tahoma,Arial;background:#0b1220;color:#e5e7eb;margin:0;padding:20px}
+main{max-width:850px;margin:auto} .card{background:#172033;border:1px solid #334155;border-radius:14px;padding:18px;margin:12px 0}
+h1{color:#a5b4fc}button{padding:10px 16px;border-radius:8px;border:0;background:#6366f1;color:white}
+small{color:#fbbf24}
+</style></head>
+<body><main>
+<h1>سامانه رصد نقدینگی و معاملات بزرگ</h1>
+<p><small>نسخه آزمایشی — داده‌های نمونه، نه داده زنده بورس</small></p>
+<div class="card"><h2>جریان نقدینگی</h2><p id="flow">در حال دریافت اطلاعات نمونه...</p></div>
+<div class="card"><h2>VWAP</h2><p id="vwap">—</p></div>
+<div class="card"><h2>معاملات بزرگ</h2><p>فیلتر معاملات با ارزش بالا از طریق API</p></div>
+<button onclick="loadData()">بروزرسانی</button>
+<script>
+async function loadData(){
+ try { const r=await fetch('http://127.0.0.1:8000/analytics/AAPL'); const d=await r.json();
+ document.getElementById('flow').textContent='جریان خالص: '+d.net_flow;
+ document.getElementById('vwap').textContent=d.vwap;
+ } catch(e){ document.getElementById('flow').textContent='برای نمایش، API محلی باید اجرا شود.'; }
+} loadData();
+</script>
+</main></body></html>
