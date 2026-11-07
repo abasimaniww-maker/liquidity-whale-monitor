@@ -6,8 +6,7 @@ from analytics import net_flow, vwap, large_trades, depth_imbalance
 
 app = FastAPI(title="Liquidity Whale Monitor", version="0.1.0")
 app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["https://abasimaniww-maker.github.io"],
+   allow_origins=["https://abasimaniww-maker.github.io"], 
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
