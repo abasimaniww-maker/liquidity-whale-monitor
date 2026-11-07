@@ -26,7 +26,7 @@ async function loadData() {
     const data = await response.json();
 
     document.getElementById('flow').textContent =
-      'جریان خالص: ' + Number(data["جریان_خالص"]).toLocaleString('fa-IR');
+      'جریان خالص: ' + Number(data.net_flow).toLocaleString('fa-IR');
 
     document.getElementById('vwap').textContent =
       Number(data.vwap).toFixed(2);
