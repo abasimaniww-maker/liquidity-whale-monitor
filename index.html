@@ -1,45 +1,156 @@
 <!doctype html>
 <html lang="fa" dir="rtl">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
 <title>رصد نقدینگی و معاملات بزرگ</title>
+
 <style>
-body{font-family:Tahoma,Arial;background:#0b1220;color:#e5e7eb;margin:0;padding:20px}
-main{max-width:850px;margin:auto} .card{background:#172033;border:1px solid #334155;border-radius:14px;padding:18px;margin:12px 0}
-h1{color:#a5b4fc}button{padding:10px 16px;border-radius:8px;border:0;background:#6366f1;color:white}
-small{color:#fbbf24}
-</style></head>
-<body><main>
+body {
+  font-family: Tahoma, Arial;
+  background: #0b1220;
+  color: #e5e7eb;
+  margin: 0;
+  padding: 20px;
+}
+main {
+  max-width: 850px;
+  margin: auto;
+}
+.card {
+  background: #172033;
+  border: 1px solid #334155;
+  border-radius: 14px;
+  padding: 18px;
+  margin: 12px 0;
+}
+h1 { color: #a5b4fc; }
+button {
+  padding: 10px 16px;
+  border-radius: 8px;
+  border: 0;
+  background: #6366f1;
+  color: white;
+}
+small { color: #fbbf24; }
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 12px;
+}
+th, td {
+  padding: 8px;
+  border-bottom: 1px solid #334155;
+  text-align: center;
+}
+</style>
+</head>
+
+<body>
+<main>
+
 <h1>سامانه رصد نقدینگی و معاملات بزرگ</h1>
-<p><small>نسخه آزمایشی — داده‌های نمونه، نه داده زنده بورس</small></p>
-<div class="card"><h2>جریان نقدینگی</h2><p id="flow">در حال دریافت اطلاعات نمونه...</p></div>
-<div class="card"><h2>VWAP</h2><p id="vwap">—</p></div>
-<div class="card"><h2>معاملات بزرگ</h2><p>فیلتر معاملات با ارزش بالا از طریق API</p></div>
+
+<p><small>
+نسخه آزمایشی — داده‌های نمونه، نه داده زنده بورس
+</small></p>
+
+<div class="card">
+<h2>جریان نقدینگی</h2>
+<p id="flow">در حال دریافت...</p>
+</div>
+
+<div class="card">
+<h2>VWAP</h2>
+<p id="vwap">—</p>
+</div>
+
+<div class="card">
+<h2>معاملات بزرگ AAPL</h2>
+<p id="largeStatus">در حال دریافت معاملات...</p>
+
+<table>
+<thead>
+<tr>
+<th>نوع</th>
+<th>قیمت</th>
+<th>تعداد</th>
+<th>ارزش معامله</th>
+</tr>
+</thead>
+<tbody id="largeTrades"></tbody>
+</table>
+</div>
+
 <button onclick="loadData()">بروزرسانی</button>
+
 <script>
 const API_BASE = "https://liquidity-whale-monitor-1.onrender.com";
 
 async function loadData() {
   try {
-    const response = await fetch(`${API_BASE}/analytics/AAPL`);
-    if (!response.ok) throw new Error("API Error");
+    const [analyticsResponse, tradesResponse] = await Promise.all([
+      fetch(`${API_BASE}/analytics/AAPL`),
+      fetch(`${API_BASE}/large-trades/AAPL?min_value=15000`)
+    ]);
 
-    const data = await response.json();
+    if (!analyticsResponse.ok || !tradesResponse.ok) {
+      throw new Error("API Error");
+    }
 
-    document.getElementById('flow').textContent =
-      'جریان خالص: ' + Number(data.net_flow).toLocaleString('fa-IR');
+    const data = await analyticsResponse.json();
+    const trades = await tradesResponse.json();
 
-    document.getElementById('vwap').textContent =
+    document.getElementById("flow").textContent =
+      "جریان خالص: " +
+      Number(data.net_flow).toLocaleString("fa-IR");
+
+    document.getElementById("vwap").textContent =
       Number(data.vwap).toFixed(2);
 
-  } catch (error) {
-  document.getElementById('flow').textContent =
-    'خطای واقعی: ' + error.message;
+    const tbody = document.getElementById("largeTrades");
+    tbody.innerHTML = "";
 
-  document.getElementById('vwap').textContent =
-    'دریافت اطلاعات ناموفق بود';
+    if (trades.length === 0) {
+      document.getElementById("largeStatus").textContent =
+        "معامله‌ای با این حداقل ارزش پیدا نشد.";
+      return;
+    }
+
+    document.getElementById("largeStatus").textContent =
+      "تعداد معاملات پیدا شده: " +
+      trades.length.toLocaleString("fa-IR");
+
+    trades.forEach(trade => {
+      const value = trade.price * trade.quantity;
+      const row = document.createElement("tr");
+
+      row.innerHTML = `
+        <td>${trade.side}</td>
+        <td>${Number(trade.price).toLocaleString("fa-IR")}</td>
+        <td>${Number(trade.quantity).toLocaleString("fa-IR")}</td>
+        <td>${Number(value).toLocaleString("fa-IR")}</td>
+      `;
+
+      tbody.appendChild(row);
+    });
+
+  } catch (error) {
+    document.getElementById("flow").textContent =
+      "خطا در دریافت اطلاعات: " + error.message;
+
+    document.getElementById("vwap").textContent =
+      "دریافت اطلاعات ناموفق بود";
+
+    document.getElementById("largeStatus").textContent =
+      "خطا در دریافت معاملات بزرگ";
   }
 }
 
 loadData();
 </script>
-</main></body></html>
+
+</main>
+</body>
+</html>
