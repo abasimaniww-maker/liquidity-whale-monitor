@@ -16,11 +16,27 @@ small{color:#fbbf24}
 <div class="card"><h2>معاملات بزرگ</h2><p>فیلتر معاملات با ارزش بالا از طریق API</p></div>
 <button onclick="loadData()">بروزرسانی</button>
 <script>
-async function loadData(){
- try { const r=await fetch('http://127.0.0.1:8000/analytics/AAPL'); const d=await r.json();
- document.getElementById('flow').textContent='جریان خالص: '+d.net_flow;
- document.getElementById('vwap').textContent=d.vwap;
- } catch(e){ document.getElementById('flow').textContent='برای نمایش، API محلی باید اجرا شود.'; }
-} loadData();
+const API_BASE = "https://liquidity-whale-monitor-1.onrender.com";
+
+async function loadData() {
+  try {
+    const response = await fetch(`${API_BASE}/analytics/AAPL`);
+    if (!response.ok) throw new Error("API Error");
+
+    const data = await response.json();
+
+    document.getElementById('flow').textContent =
+      'جریان خالص: ' + Number(data["جریان_خالص"]).toLocaleString('fa-IR');
+
+    document.getElementById('vwap').textContent =
+      Number(data.vwap).toFixed(2);
+
+  } catch (error) {
+    document.getElementById('flow').textContent =
+      'خطا در اتصال به سرور؛ دوباره تلاش کنید.';
+  }
+}
+
+loadData();
 </script>
 </main></body></html>
