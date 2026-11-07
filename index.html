@@ -32,8 +32,11 @@ async function loadData() {
       Number(data.vwap).toFixed(2);
 
   } catch (error) {
-    document.getElementById('flow').textContent =
-      'خطا در اتصال به سرور؛ دوباره تلاش کنید.';
+  document.getElementById('flow').textContent =
+    'خطای واقعی: ' + error.message;
+
+  document.getElementById('vwap').textContent =
+    'دریافت اطلاعات ناموفق بود';
   }
 }
 
