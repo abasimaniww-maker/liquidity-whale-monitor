@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from datetime import datetime, timezone
 from models import Trade, OrderBook
 from analytics import net_flow, vwap, large_trades, depth_imbalance
