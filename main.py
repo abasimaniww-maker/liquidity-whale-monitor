@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from datetime import datetime, timezone
-from .models import Trade, OrderBook
-from .analytics import net_flow, vwap, large_trades, depth_imbalance
+from models import Trade, OrderBook
+from analytics import net_flow, vwap, large_trades, depth_imbalance
 
 app = FastAPI(title="Liquidity Whale Monitor", version="0.1.0")
 demo_trades = [
